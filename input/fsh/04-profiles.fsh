@@ -103,7 +103,7 @@ Description: "Tracks fulfilment of one prescription by the CDU."
 * identifier.system = $taskId
 * identifier.value 1..1
 * status MS
-* businessStatus 1..1 MS
+* businessStatus 0..1 MS
 * businessStatus from CduFulfilmentStatusVS (required)
 * statusReason MS
 * statusReason from CduRejectionReasonVS (extensible)

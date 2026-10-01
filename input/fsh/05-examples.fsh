@@ -41,7 +41,6 @@ RuleSet: TaskContent
 * identifier.system = $taskId
 * identifier.value = "3f6c1a2e-7b44-4c1e-9a55-1d2f3e4a5b6c"
 * status = #requested
-* businessStatus = CduFulfilmentStatusCS#received
 * intent = #order
 * authoredOn = "2026-09-22T10:15:00+02:00"
 * lastModified = "2026-09-22T10:15:00+02:00"
@@ -105,10 +104,21 @@ Usage: #example
 
 Instance: ExampleTask
 InstanceOf: CduFulfilmentTask
-Title: "Example: fulfilment Task just received"
+Title: "Example: fulfilment Task requested by eRegister"
 Description: "The work item created alongside the prescription, waiting for the CDU."
 Usage: #example
 * insert TaskContent
+* focus = Reference(ExampleMedicationRequest)
+* for = Reference(ExamplePatient)
+
+Instance: ExampleClaimedTask
+InstanceOf: CduFulfilmentTask
+Title: "Example: fulfilment Task claimed by the CDU"
+Description: "The CDU has accepted the work item and marked it as received."
+Usage: #example
+* insert TaskContent
+* status = #accepted
+* businessStatus = CduFulfilmentStatusCS#received
 * focus = Reference(ExampleMedicationRequest)
 * for = Reference(ExamplePatient)
 
