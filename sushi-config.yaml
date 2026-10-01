@@ -1,0 +1,19 @@
+# ---------------------------------------------------------------
+# SUSHI project configuration for the Bonolo Health CDU contract.
+# SUSHI reads this file first. It tells SUSHI what the package is
+# called, which FHIR version it targets, and where it will live.
+# ---------------------------------------------------------------
+id: ls.moh.bonolo.cdu
+canonical: http://fhir.health.gov.ls/bonolo-cdu   # PLACEHOLDER - agree the real base URL with MoH ICT
+name: BonoloCduIG
+title: Bonolo Health CDU Prescription Exchange
+status: draft
+version: 0.1.0
+fhirVersion: 4.0.1          # FHIR R4, what HAPI and OpenMRS fhir2 speak
+copyrightYear: 2026+
+releaseLabel: ci-build
+publisher:
+  name: Ministry of Health Lesotho / NUL Technical Team
+# FSHOnly: SUSHI outputs the JSON definitions only, no website.
+# Switch to false later when you want to publish an HTML IG.
+FSHOnly: true
