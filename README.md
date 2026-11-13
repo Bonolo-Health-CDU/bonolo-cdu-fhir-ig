@@ -2,6 +2,8 @@
 
 This repository is the **contract** between eRegister and the CDU prescription repository: the exact shape of a prescription message, the codes it may carry, and the status values sent back. It is written in **FHIR Shorthand (FSH)** and compiled by **SUSHI** into standard FHIR JSON. The HAPI FHIR server later loads that JSON and rejects any message that breaks the contract.
 
+**Browse the guide:** https://bonolo-health-cdu.github.io/bonolo-cdu-fhir-ig/ (rebuilt automatically on every merge to `main`).
+
 > **Why start here and not with the server?** The contract is what both teams build against. If it is vague, eRegister and CDU each fill the gaps with their own assumptions, and those assumptions collide at integration. The server is only as strict as the profiles you give it.
 
 ---
@@ -13,7 +15,8 @@ This repository is the **contract** between eRegister and the CDU prescription r
 | Node.js 18+ | SUSHI runs on Node | https://nodejs.org |
 | SUSHI | Compiles `.fsh` into FHIR JSON | `npm install -g fsh-sushi` |
 | VS Code + **FHIR Shorthand** extension (by MITRE) | Syntax highlighting, jump-to-definition | VS Code Extensions panel, search "FHIR Shorthand" |
-| Java 17+ (for step 5 only) | Runs the official HL7 validator | https://adoptium.net |
+| Java 17+ (for exercise C and the website) | Runs the official HL7 validator and IG Publisher | https://adoptium.net |
+| Ruby 3+ and Jekyll (for the website only) | The IG Publisher uses Jekyll to assemble the HTML | Mac: `brew install ruby`, then `$(brew --prefix)/opt/ruby/bin/gem install jekyll` |
 
 Check it worked:
 
@@ -28,7 +31,7 @@ sushi --version        # expect SUSHI v3.x
 ## 2. Build it
 
 ```bash
-cd bonolo-cdu-ig
+cd bonolo-cdu-fhir-ig
 sushi build .
 ```
 
@@ -36,9 +39,16 @@ A good build ends with `0 Errors`. The output lands in `fsh-generated/resources/
 
 The first build downloads the FHIR R4 core package (~20 MB) into `~/.fhir/packages`. After that it works offline.
 
-**Warnings you can ignore for now**
-- *"FSHOnly property is set to true… properties are unused"*: those properties matter once we publish a website version of the guide.
-- *"Failed to load automatically-provided hl7.fhir.uv.tools / terminology / extensions"*: only appears when the machine can't reach `packages.fhir.org`. On a normal connection it goes away.
+**Warning you can ignore:** *"Failed to load automatically-provided hl7.fhir.uv.tools / terminology / extensions"* only appears when the machine can't reach `packages.fhir.org`. On a normal connection it goes away.
+
+**Two scripts build on top of SUSHI:**
+
+| Script | Produces | When |
+|---|---|---|
+| `scripts/package.sh` | `output/ls.moh.bonolo.cdu-{version}.tgz`, the FHIR package HAPI loads | Each release. Same source and version give a byte-identical file. |
+| `scripts/build-site.sh` | `site/`, the browsable guide. Open `site/index.html`; errors and warnings are in `site/qa.html` | To preview pages before a PR. CI publishes the real site on merge. |
+
+`build-site.sh` downloads the HL7 IG Publisher (~240 MB) into `input-cache/` the first time, and needs internet access to fetch the page template and check codes. The narrative pages are in `input/pagecontent/`; the profile, code system and example pages are generated from the FSH.
 
 ---
 
@@ -142,5 +152,5 @@ These are drafted so the build works. None is agreed. Each needs an owner and a 
 ## 9. What comes next
 
 1. Close the placeholders in section 7, starting with the eRegister spike (#3), because it can reshape the MedicationRequest profile.
-2. Turn off `FSHOnly` and run the **IG Publisher** to produce a browsable HTML guide you can share with the Ministry.
+2. Share the browsable guide (link at the top) with the Ministry. Before calling it v1.0, clear the publishing warnings in `site/qa.html`: `experimental` flags and OIDs on the code systems and value sets.
 3. Load the package into HAPI (step 2 of the sprint), switch on request validation, and POST the example bundle.

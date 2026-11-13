@@ -2,3 +2,6 @@ fsh-generated/
 output/
 temp/
 input-cache/
+template/
+site/
+Requirements-fromNarrative.json

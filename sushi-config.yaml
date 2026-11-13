@@ -14,6 +14,25 @@ copyrightYear: 2026+
 releaseLabel: ci-build
 publisher:
   name: Ministry of Health Lesotho / NUL Technical Team
-# FSHOnly: SUSHI outputs the JSON definitions only, no website.
-# Switch to false later when you want to publish an HTML IG.
-FSHOnly: true
+# FSHOnly false: SUSHI also writes the ImplementationGuide resource,
+# which the HL7 IG Publisher turns into a browsable website.
+# scripts/build-site.sh builds it into site/ (not output/, which
+# holds the pinned package). scripts/package.sh builds the package
+# with FSHOnly: true, so website settings never change its contents.
+FSHOnly: false
+parameters:
+  path-output: site
+
+# Narrative pages, from input/pagecontent/. The Artifacts page
+# (artifacts.html) is generated: one entry per profile, extension,
+# code system, value set and example.
+pages:
+  index.md:
+    title: Home
+  exchange.md:
+    title: Exchange workflow
+
+menu:
+  Home: index.html
+  Exchange workflow: exchange.html
+  Artifacts: artifacts.html
