@@ -2,11 +2,23 @@
 # Requires SUSHI and Python 3. Examples are deliberately outside package/ root.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-sushi build .
+
+# Build the contract in a scratch copy with FSHOnly: true. In website mode
+# SUSHI leaves fields such as version to the IG Publisher, which would
+# change the package's contents.
+build=$(mktemp -d)
+trap 'rm -rf "$build"' EXIT
+mkdir "$build/input"
+cp -R input/fsh "$build/input/fsh"
+grep -q '^FSHOnly: false$' sushi-config.yaml
+sed 's/^FSHOnly: false$/FSHOnly: true/' sushi-config.yaml > "$build/sushi-config.yaml"
+sushi build "$build"
+export SUSHI_RESOURCES="$build/fsh-generated/resources"
 
 python3 - <<'PY'
 import gzip
 import json
+import os
 from pathlib import Path
 import re
 import shutil
@@ -34,7 +46,7 @@ write_json(package / "package.json", {
 conformance = {"StructureDefinition", "CodeSystem", "ValueSet"}
 examples = {"Patient", "MedicationRequest", "Task", "Bundle", "Organization", "Location"}
 indexes = {package: [], package / "example": []}
-for source in sorted((root / "fsh-generated/resources").glob("*.json")):
+for source in sorted(Path(os.environ["SUSHI_RESOURCES"]).glob("*.json")):
     resource = json.loads(source.read_text())
     resource_type = resource["resourceType"]
     if resource_type in conformance:

@@ -1,0 +1,4 @@
+== Suppressed Messages ==
+
+# Add a QA message here (exact text) only after deciding it is safe to ignore,
+# with a comment saying why. Empty for now: every warning stays visible.
