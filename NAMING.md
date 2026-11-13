@@ -41,7 +41,7 @@ Each code system has a value set with the same id: `{base}/ValueSet/{id}`.
 
 | Id | Code system URL | Used in |
 |---|---|---|
-| `art-regimen` | `{base}/CodeSystem/art-regimen` | MedicationRequest.medicationCodeableConcept. Codes = eRegister regimen codes (`1j`, `1f`, …). **[to confirm]** full list with Pharmacy. |
+| `art-regimen` | `{base}/CodeSystem/art-regimen` | MedicationRequest.medicationCodeableConcept. Codes = national regimen codes (`1j`, `2d`, …). **[to confirm]** with Pharmacy and against the codes eRegister sends. |
 | `cdu-programme` | `{base}/CodeSystem/cdu-programme` | MedicationRequest.category (`ART`) |
 | `cdu-fulfilment-status` | `{base}/CodeSystem/cdu-fulfilment-status` | Task.businessStatus |
 | `cdu-rejection-reason` | `{base}/CodeSystem/cdu-rejection-reason` | Task.statusReason |

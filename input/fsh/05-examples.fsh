@@ -27,7 +27,7 @@ RuleSet: PrescriptionContent
 * status = #active
 * intent = #order
 * authoredOn = "2026-09-22T10:15:00+02:00"
-* medicationCodeableConcept = ArtRegimenCS#1j "TDF-3TC-DTG"
+* medicationCodeableConcept = ArtRegimenCS#1j "TDF/3TC/DTG"
 * dosageInstruction.patientInstruction = "Take one tablet daily"
 * dispenseRequest.expectedSupplyDuration = 180 'd' "days"
 * dispenseRequest.numberOfRepeatsAllowed = 0
