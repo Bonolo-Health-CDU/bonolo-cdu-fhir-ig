@@ -73,7 +73,7 @@ Read them in this order. Each one is commented line by line.
 2. **Profile**: a resource with your rules added. `BonoloMedicationRequest` is a `MedicationRequest` that *must* have an order ID, a regimen, a pickup point and so on.
 3. **Cardinality**: how many times a field may appear. `0..1` optional, `1..1` mandatory, `0..*` optional and repeating, `0..0` forbidden.
 4. **MustSupport (`MS`)**: the receiver must be able to store and handle this field, even if a given message leaves it out.
-5. **CodeSystem vs ValueSet**: a CodeSystem *defines* codes (`#1j` = TDF-3TC-DTG). A ValueSet *selects* which codes are allowed in a field.
+5. **CodeSystem vs ValueSet**: a CodeSystem *defines* codes (`#1j` = TDF/3TC/DTG). A ValueSet *selects* which codes are allowed in a field.
 6. **Binding strength**: `required` means only codes from the ValueSet. `extensible` means use the ValueSet if a code fits, otherwise another code is allowed.
 7. **Slicing**: splitting one repeating field into named parts. `Patient.identifier` holds several IDs; slicing names them `eRegister`, `national`, `hivProgram` and `clientRegistry`, and tells them apart by `system`.
 8. **Identifier system**: the namespace an ID belongs to. `E0000000001/26` means nothing alone; with its system URL it's unambiguous across 150 facilities.
@@ -86,9 +86,9 @@ Read them in this order. Each one is commented line by line.
 
 Do these before changing anything real. Each takes about five minutes and teaches the edit-build-read loop.
 
-**Exercise A: add a regimen.** In `02-terminology.fsh`, add under `ArtRegimenCS`:
+**Exercise A: add a regimen.** In `02-terminology.fsh`, add a practice code under `ArtRegimenCS` (remove it afterwards):
 ```
-* #2a "AZT-3TC-LPV/r" "Zidovudine / Lamivudine / Lopinavir-ritonavir"
+* #9z "AZT/3TC/LPV/r" "Zidovudine / Lamivudine / Lopinavir-ritonavir"
 ```
 Rebuild, then open `fsh-generated/resources/CodeSystem-art-regimen.json` and find your code.
 
@@ -130,7 +130,7 @@ These are drafted so the build works. None is agreed. Each needs an owner and a 
 | # | Placeholder in this draft | Where | Decide with |
 |---|---|---|---|
 | 1 | Canonical URL and all `http://fhir.health.gov.ls/...` identifier systems | `sushi-config.yaml`, `01-aliases.fsh` | MoH ICT (national naming convention; check the client registry's existing systems first) |
-| 2 | Regimen list holds only `1j` and `1f` | `02-terminology.fsh` | MoH Pharmacy Directorate |
+| 2 | Regimen list: 24 national codes. Pending: `5h` (listed as two regimens), `TDF/3TC/ATV/r` (no code), `1f` (removed in 0.3.0; still prescribed?), and whether eRegister sends these codes (the list maps `4j` to eRegister's `1j`) | `02-terminology.fsh` | MoH Pharmacy Directorate, eRegister team |
 | 3 | Prescription carries a **regimen code**, not discrete drugs | `04-profiles.fsh` | Depends on the eRegister spike: drug order or observation? |
 | 4 | Pickup point is a `Location` referenced by code | `03-extensions.fsh` | Needs a coded pickup-point registry (currently free text) |
 | 5 | Mandatory set: name, eRegister ID, order ID, authoredOn, regimen, pickup point, requested pickup date, originating facility | `04-profiles.fsh` | Architecture doc §8 says "six" but its table marks seven Yes; reconcile |

@@ -42,7 +42,7 @@ FHIR compares system URLs character for character, so a one-letter difference ma
 | # | Placeholder in this draft | Decide with |
 |---|---|---|
 | 1 | Canonical URL and all `http://fhir.health.gov.ls/...` identifier systems | MoH ICT, after checking the client registry's existing systems |
-| 2 | Regimen list holds only `1j` and `1f` | MoH Pharmacy Directorate |
+| 2 | Regimen list: 24 national codes. Pending: `5h` (listed as two regimens), `TDF/3TC/ATV/r` (no code), `1f` (removed in 0.3.0; still prescribed?), and whether eRegister sends these codes (the list maps `4j` to eRegister's `1j`) | MoH Pharmacy Directorate, eRegister team |
 | 3 | Prescription carries a **regimen code**, not discrete drugs | eRegister spike: drug order or observation? |
 | 4 | Pickup point is a `Location` referenced by code | Needs a coded pickup-point registry |
 | 5 | Mandatory field set on MedicationRequest | Reconcile with architecture document §8 |
