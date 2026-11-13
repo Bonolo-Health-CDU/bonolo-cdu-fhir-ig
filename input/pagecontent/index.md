@@ -49,6 +49,7 @@ FHIR compares system URLs character for character, so a one-letter difference ma
 | 6 | Viral load and HIV diagnosis date are excluded | Decision D4 |
 | 7 | Allergies not yet modelled (`AllergyIntolerance`) | Decision D4 |
 | 8 | CDU identified as `LS-CDU-001` | Confirm the CDU's actual DHIS2 org unit code |
+| 9 | The CDU reports *that* a parcel was collected (Task), not *what* was dispensed (no MedicationDispense) | eRegister team: do they need the dispensed products? |
 
 ### Changing the contract
 

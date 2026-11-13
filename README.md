@@ -111,10 +111,13 @@ eRegister module ──POST transaction Bundle (INT-01)──▶ OpenHIM ──�
    MedicationRequest  ifNoneExist on order UUID                        │ validates against
    Task (requested)   ifNoneExist on task ID                           │ these profiles
                                                                         ▼
-CDU Odoo ──GET Task?status=requested&owner=…──▶ claims (accepted) ──▶ updates businessStatus
+CDU Odoo ──INT-02: GET Task?status=requested&owner=…──▶ claims (accepted / received)
+         ──INT-03: updates status and businessStatus ──▶ … completed / collected
                                                                         │
-eRegister module ──GET Task?identifier=…────────────────────────────────┘  (INT-03 status)
+eRegister module ──INT-03 read back: GET Task?identifier=…,… ───────────┘  updates itself
 ```
+
+The full lifecycle, other outcomes and how eRegister polls are on the guide's **Exchange workflow** page (`input/pagecontent/exchange.md`).
 
 - **Transaction bundle**: all three resources are saved together, or none are.
 - **`ifNoneExist`**: create only if nothing with this identifier exists yet. A facility that re-sends after an outage cannot create duplicates.
@@ -137,6 +140,7 @@ These are drafted so the build works. None is agreed. Each needs an owner and a 
 | 6 | Viral load and HIV diagnosis date are **excluded** | Not modelled | Decision D4 |
 | 7 | Allergies not yet modelled (`AllergyIntolerance`) | — | Decision D4 |
 | 8 | CDU identified as `LS-CDU-001` in the DHIS2 code system | Examples | Confirm the CDU's actual org unit code |
+| 9 | The CDU reports *that* a parcel was collected (Task), not *what* was dispensed: no MedicationDispense profile | Not modelled | eRegister team: do they need the dispensed products? |
 
 ---
 
