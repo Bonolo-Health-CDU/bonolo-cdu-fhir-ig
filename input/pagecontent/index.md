@@ -53,3 +53,11 @@ FHIR compares system URLs character for character, so a one-letter difference ma
 ### Changing the contract
 
 The source is FHIR Shorthand in [GitHub](https://github.com/Bonolo-Health-CDU/bonolo-cdu-fhir-ig). Any change goes through a pull request reviewed by one person from eRegister and one from the CDU, and bumps the version. All examples are synthetic. Never add real patient data.
+
+### Related repositories
+
+| Repository | What it holds |
+|---|---|
+| [bonolo-cdu-fhir-ig](https://github.com/Bonolo-Health-CDU/bonolo-cdu-fhir-ig) | The source of this guide |
+| [bonolo-health-eregister-automation](https://github.com/Bonolo-Health-CDU/bonolo-health-eregister-automation) | The prescription repository that enforces this contract (HAPI FHIR behind OpenHIM, with Keycloak and an admin portal), and a Postman collection that runs every exchange end to end |
+| [bahmni-docker](https://github.com/Bonolo-Health-CDU/bahmni-docker) | The CDU in Odoo. Its `cdu_eregister` module is the CDU side of this exchange. |
