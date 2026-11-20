@@ -6,6 +6,23 @@ This repository is the **contract** between eRegister and the CDU prescription r
 
 > **Why start here and not with the server?** The contract is what both teams build against. If it is vague, eRegister and CDU each fill the gaps with their own assumptions, and those assumptions collide at integration. The server is only as strict as the profiles you give it.
 
+## Documentation
+
+| Document | For |
+|---|---|
+| [The guide](https://bonolo-health-cdu.github.io/bonolo-cdu-fhir-ig/) | Everyone building against the contract: profiles, code lists, examples and the Exchange workflow page |
+| This README | Changing the contract: setup, building, a tour of the FSH files and first exercises |
+| [NAMING.md](NAMING.md) | The agreed identifier systems and record IDs |
+| [CHANGELOG.md](CHANGELOG.md) | What changed in each version, with migration notes for breaking changes |
+
+### Related repositories
+
+| Repository | What it holds |
+|---|---|
+| bonolo-cdu-fhir-ig (this one) | The FHIR contract between eRegister and the CDU: profiles, code lists and status values |
+| [bonolo-health-eregister-automation](https://github.com/Bonolo-Health-CDU/bonolo-health-eregister-automation) | The prescription repository that enforces this contract (HAPI FHIR behind OpenHIM, with Keycloak and an admin portal) and the Postman tests |
+| [bahmni-docker](https://github.com/Bonolo-Health-CDU/bahmni-docker) | The CDU in Odoo (prescription workflow, eLMIS, Collect & Go, the eRegister client) and the print agent |
+
 ---
 
 ## 1. Set up (30 minutes)
