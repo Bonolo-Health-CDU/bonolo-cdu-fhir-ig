@@ -62,8 +62,13 @@ Description: "A prescription routed to the Central Dispensing Unit for fulfilmen
 * intent = #order
 * subject 1..1 MS
 * subject only Reference(BonoloPatient)
+* subject.reference 1..1
 * authoredOn 1..1 MS
-* requester MS
+// The prescriber, sent as a Practitioner in the same bundle. The CDU
+// prints the name on dispensing labels.
+* requester 1..1 MS
+* requester only Reference(BonoloPractitioner)
+* requester.reference 1..1   // a display-only requester is not enough
 
 // Regimen is sent as a code. NOTE: if the eRegister spike shows real
 // drug orders, this changes to discrete products per request.
@@ -84,7 +89,8 @@ Description: "A prescription routed to the Central Dispensing Unit for fulfilmen
     PickupPoint named pickupPoint 1..1 MS and
     RequestedPickupDate named requestedPickupDate 1..1 MS and
     OriginatingFacility named originatingFacility 1..1 MS and
-    NextClinicalVisitDate named nextClinicalVisitDate 0..1 MS
+    NextClinicalVisitDate named nextClinicalVisitDate 1..1 MS and
+    VisitType named visitType 0..1 MS
 
 // ================= FULFILMENT TASK =================
 // The work-queue item. One Task per MedicationRequest.
@@ -110,13 +116,64 @@ Description: "Tracks fulfilment of one prescription by the CDU."
 * intent = #order
 * focus 1..1 MS
 * focus only Reference(BonoloMedicationRequest)
+* focus.reference 1..1
 * for 1..1 MS
 * for only Reference(BonoloPatient)
+* for.reference 1..1
 * authoredOn 1..1 MS
 * lastModified 1..1 MS
 * code 1..1 MS
 * code = $taskCode#fulfill
 * requester 1..1 MS   // the originating facility
 * requester only Reference(Organization)
+* requester.reference 1..1
 * owner 1..1 MS       // the CDU
 * owner only Reference(Organization)
+* owner.reference 1..1
+
+// ================= PRACTITIONER =================
+// The prescriber. eRegister sends it in the same bundle as the
+// prescription, created once per provider (ifNoneExist).
+Profile: BonoloPractitioner
+Parent: Practitioner
+Id: bonolo-practitioner
+Title: "Bonolo Practitioner"
+Description: "The eRegister provider who wrote a prescription."
+
+* identifier 1..* MS
+* identifier ^slicing.discriminator.type = #value
+* identifier ^slicing.discriminator.path = "system"
+* identifier ^slicing.rules = #open
+* identifier contains eRegisterProvider 1..1 MS
+* identifier[eRegisterProvider].system = $providerId
+* identifier[eRegisterProvider].value 1..1
+* name 1..* MS
+* active MS
+
+// ================= ALLERGY INTOLERANCE =================
+// The patient's allergies, sent with each prescription so the
+// dispensing pharmacist can check them.
+//  - One record per allergy, identified by eRegister's allergy UUID.
+//  - "No known allergies": one record coded SNOMED 716186003.
+//  - No allergy records at all means "not recorded".
+// eRegister sends them as conditional updates, so a later change of
+// status (for example resolved) replaces the earlier record.
+Profile: BonoloAllergyIntolerance
+Parent: AllergyIntolerance
+Id: bonolo-allergy-intolerance
+Title: "Bonolo Allergy Intolerance"
+Description: "An allergy, or the statement that the patient has no known allergies, as recorded in eRegister."
+
+* identifier 1..1 MS
+* identifier.system = $allergyId
+* identifier.value 1..1
+* clinicalStatus MS      // required by FHIR unless entered-in-error
+* verificationStatus 1..1 MS
+* code 1..1 MS
+* patient 1..1 MS
+* patient only Reference(BonoloPatient)
+* patient.reference 1..1
+* recordedDate MS
+* criticality MS
+* reaction MS
+* reaction.manifestation MS

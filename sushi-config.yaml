@@ -8,7 +8,7 @@ canonical: http://fhir.health.gov.ls/bonolo-cdu   # PLACEHOLDER - agree the real
 name: BonoloCduIG
 title: Bonolo Health CDU Prescription Exchange
 status: draft
-version: 0.3.0
+version: 0.4.0
 fhirVersion: 4.0.1          # FHIR R4, what HAPI and OpenMRS fhir2 speak
 copyrightYear: 2026+
 releaseLabel: ci-build
@@ -36,3 +36,8 @@ menu:
   Home: index.html
   Exchange workflow: exchange.html
   Artifacts: artifacts.html
+
+# Resources inside a Bundle carry no id: the server assigns them, and an id
+# in a conditional update would become the record's id.
+instanceOptions:
+  setId: standalone-only

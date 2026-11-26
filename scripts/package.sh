@@ -44,7 +44,7 @@ write_json(package / "package.json", {
     "dependencies": {"hl7.fhir.r4.core": "4.0.1"},
 })
 conformance = {"StructureDefinition", "CodeSystem", "ValueSet"}
-examples = {"Patient", "MedicationRequest", "Task", "Bundle", "Organization", "Location"}
+examples = {"Patient", "Practitioner", "MedicationRequest", "Task", "AllergyIntolerance", "Bundle", "Organization", "Location"}
 indexes = {package: [], package / "example": []}
 for source in sorted(Path(os.environ["SUSHI_RESOURCES"]).glob("*.json")):
     resource = json.loads(source.read_text())

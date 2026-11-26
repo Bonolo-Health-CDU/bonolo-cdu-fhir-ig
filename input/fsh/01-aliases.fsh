@@ -16,6 +16,11 @@ Alias: $facilityCode  = http://fhir.health.gov.ls/sid/dhis2-org-unit        // [
 Alias: $orderId       = http://fhir.health.gov.ls/sid/eregister-order-uuid
 Alias: $taskId        = http://fhir.health.gov.ls/sid/cdu-fulfilment-task
 Alias: $pickupPointId = http://fhir.health.gov.ls/sid/pickup-point-code
+Alias: $providerId    = http://fhir.health.gov.ls/sid/eregister-provider-uuid
+Alias: $allergyId     = http://fhir.health.gov.ls/sid/eregister-allergy-uuid
 
 // Standard HL7 code systems
 Alias: $taskCode      = http://hl7.org/fhir/CodeSystem/task-code
+Alias: $sct           = http://snomed.info/sct
+Alias: $allergyClinical     = http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical
+Alias: $allergyVerification = http://terminology.hl7.org/CodeSystem/allergyintolerance-verification

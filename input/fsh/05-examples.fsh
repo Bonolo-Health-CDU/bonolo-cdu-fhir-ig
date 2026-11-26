@@ -36,6 +36,21 @@ RuleSet: PrescriptionContent
 * extension[requestedPickupDate].valueDate = "2026-10-06"
 * extension[originatingFacility].valueReference = Reference(Organization/LS-TEST-FAC-001)
 * extension[nextClinicalVisitDate].valueDate = "2027-03-22"
+* extension[visitType].valueCodeableConcept = CduVisitTypeCS#revisit "Revisit"
+
+RuleSet: PractitionerContent
+* identifier[eRegisterProvider].value = "5b1f2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d"
+* active = true
+* name.family = "Prescriber"
+* name.given = "Thabo"
+
+RuleSet: NoKnownAllergyContent
+* identifier.system = $allergyId
+* identifier.value = "7d9e0f1a-2b3c-4d5e-8f6a-7b8c9d0e1f2a"
+* clinicalStatus = $allergyClinical#active
+* verificationStatus = $allergyVerification#confirmed
+* code = $sct#716186003 "No known allergy"
+* recordedDate = "2026-09-22T10:15:00+02:00"
 
 RuleSet: TaskContent
 * identifier.system = $taskId
@@ -94,6 +109,21 @@ Description: "A synthetic patient enrolled for CDU collection."
 Usage: #example
 * insert PatientContent
 
+Instance: ExamplePractitioner
+InstanceOf: BonoloPractitioner
+Title: "Example: prescriber"
+Description: "The eRegister provider who wrote the example prescription."
+Usage: #example
+* insert PractitionerContent
+
+Instance: ExampleNoKnownAllergy
+InstanceOf: BonoloAllergyIntolerance
+Title: "Example: no known allergies"
+Description: "The patient has been asked and has no known allergies."
+Usage: #example
+* insert NoKnownAllergyContent
+* patient = Reference(ExamplePatient)
+
 Instance: ExampleMedicationRequest
 InstanceOf: BonoloMedicationRequest
 Title: "Example: ART prescription for CDU"
@@ -101,6 +131,7 @@ Description: "A 6-month ART refill routed to the CDU for collection at a pharmac
 Usage: #example
 * insert PrescriptionContent
 * subject = Reference(ExamplePatient)
+* requester = Reference(ExamplePractitioner)
 
 Instance: ExampleTask
 InstanceOf: CduFulfilmentTask
@@ -130,17 +161,25 @@ Usage: #example
 //    assigned real ids. The server rewrites these references.
 //  - ifNoneExist: "create only if no resource with this identifier
 //    exists". This is what makes a re-send after an outage safe.
+//  - Allergies use a conditional update (PUT with a search URL)
+//    instead, so a later change of status replaces the record.
 
 Instance: BundlePatient
 InstanceOf: BonoloPatient
 Usage: #inline
 * insert PatientContent
 
+Instance: BundlePractitioner
+InstanceOf: BonoloPractitioner
+Usage: #inline
+* insert PractitionerContent
+
 Instance: BundleMedicationRequest
 InstanceOf: BonoloMedicationRequest
 Usage: #inline
 * insert PrescriptionContent
 * subject.reference = "urn:uuid:8a1d9c6e-1f2b-4d3c-8e4f-5a6b7c8d9e01"
+* requester.reference = "urn:uuid:5b1f2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d"
 
 Instance: BundleTask
 InstanceOf: CduFulfilmentTask
@@ -149,10 +188,16 @@ Usage: #inline
 * focus.reference = "urn:uuid:3f6c1a2e-7b44-4c1e-9a55-1d2f3e4a5b6c"
 * for.reference = "urn:uuid:8a1d9c6e-1f2b-4d3c-8e4f-5a6b7c8d9e01"
 
+Instance: BundleNoKnownAllergy
+InstanceOf: BonoloAllergyIntolerance
+Usage: #inline
+* insert NoKnownAllergyContent
+* patient.reference = "urn:uuid:8a1d9c6e-1f2b-4d3c-8e4f-5a6b7c8d9e01"
+
 Instance: ExamplePublicationBundle
 InstanceOf: Bundle
 Title: "Example: INT-01 prescription publication"
-Description: "Transaction bundle sent by an eRegister instance for one prescription."
+Description: "Transaction bundle sent by an eRegister instance for one prescription: patient, prescriber, prescription, fulfilment Task and the patient's allergy status."
 Usage: #example
 * type = #transaction
 * entry[0].fullUrl = "urn:uuid:8a1d9c6e-1f2b-4d3c-8e4f-5a6b7c8d9e01"
@@ -160,13 +205,22 @@ Usage: #example
 * entry[0].request.method = #POST
 * entry[0].request.url = "Patient"
 * entry[0].request.ifNoneExist = "identifier=http://fhir.health.gov.ls/sid/eregister-id|E0000000001/26"
-* entry[1].fullUrl = "urn:uuid:3f6c1a2e-7b44-4c1e-9a55-1d2f3e4a5b6c"
-* entry[1].resource = BundleMedicationRequest
+* entry[1].fullUrl = "urn:uuid:5b1f2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d"
+* entry[1].resource = BundlePractitioner
 * entry[1].request.method = #POST
-* entry[1].request.url = "MedicationRequest"
-* entry[1].request.ifNoneExist = "identifier=http://fhir.health.gov.ls/sid/eregister-order-uuid|3f6c1a2e-7b44-4c1e-9a55-1d2f3e4a5b6c"
-* entry[2].fullUrl = "urn:uuid:c2e3f4a5-b6c7-4d8e-9f01-2a3b4c5d6e7f"
-* entry[2].resource = BundleTask
+* entry[1].request.url = "Practitioner"
+* entry[1].request.ifNoneExist = "identifier=http://fhir.health.gov.ls/sid/eregister-provider-uuid|5b1f2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d"
+* entry[2].fullUrl = "urn:uuid:3f6c1a2e-7b44-4c1e-9a55-1d2f3e4a5b6c"
+* entry[2].resource = BundleMedicationRequest
 * entry[2].request.method = #POST
-* entry[2].request.url = "Task"
-* entry[2].request.ifNoneExist = "identifier=http://fhir.health.gov.ls/sid/cdu-fulfilment-task|3f6c1a2e-7b44-4c1e-9a55-1d2f3e4a5b6c"
+* entry[2].request.url = "MedicationRequest"
+* entry[2].request.ifNoneExist = "identifier=http://fhir.health.gov.ls/sid/eregister-order-uuid|3f6c1a2e-7b44-4c1e-9a55-1d2f3e4a5b6c"
+* entry[3].fullUrl = "urn:uuid:c2e3f4a5-b6c7-4d8e-9f01-2a3b4c5d6e7f"
+* entry[3].resource = BundleTask
+* entry[3].request.method = #POST
+* entry[3].request.url = "Task"
+* entry[3].request.ifNoneExist = "identifier=http://fhir.health.gov.ls/sid/cdu-fulfilment-task|3f6c1a2e-7b44-4c1e-9a55-1d2f3e4a5b6c"
+* entry[4].fullUrl = "urn:uuid:7d9e0f1a-2b3c-4d5e-8f6a-7b8c9d0e1f2a"
+* entry[4].resource = BundleNoKnownAllergy
+* entry[4].request.method = #PUT
+* entry[4].request.url = "AllergyIntolerance?identifier=http://fhir.health.gov.ls/sid/eregister-allergy-uuid|7d9e0f1a-2b3c-4d5e-8f6a-7b8c9d0e1f2a"

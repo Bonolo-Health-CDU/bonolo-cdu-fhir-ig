@@ -6,19 +6,22 @@ This guide is the **contract** between eRegister and the CDU prescription reposi
 
 ### What a prescription carries
 
-One prescription is sent as three resources in a single transaction. See the [Exchange workflow](exchange.html).
+One prescription is sent as one transaction holding the resources below. See the [Exchange workflow](exchange.html).
 
 | Resource | Profile | What it holds |
 |---|---|---|
 | Patient | [Bonolo Patient](StructureDefinition-bonolo-patient.html) | Name, eRegister ID (mandatory), and the national, HIV programme and client registry IDs when known |
-| MedicationRequest | [Bonolo CDU Medication Request](StructureDefinition-bonolo-medication-request.html) | Order UUID, regimen code, supply duration, pickup point, requested pickup date, originating facility |
+| Practitioner | [Bonolo Practitioner](StructureDefinition-bonolo-practitioner.html) | The prescriber: name and eRegister provider UUID |
+| MedicationRequest | [Bonolo CDU Medication Request](StructureDefinition-bonolo-medication-request.html) | Order UUID, prescriber, regimen code, supply duration, pickup point, requested pickup date, next clinical visit date, originating facility, visit type |
 | Task | [CDU Fulfilment Task](StructureDefinition-cdu-fulfilment-task.html) | The work item the CDU claims, and the status the facility reads back |
+| AllergyIntolerance (0 or more) | [Bonolo Allergy Intolerance](StructureDefinition-bonolo-allergy-intolerance.html) | Each recorded allergy, or one "no known allergies" record. None at all means allergies were not recorded |
 
-MedicationRequest carries four extensions, because FHIR has no standard field for them:
+MedicationRequest carries five extensions, because FHIR has no standard field for them:
 - [Pickup Point](StructureDefinition-pickup-point.html)
 - [Requested Pickup Date](StructureDefinition-requested-pickup-date.html)
 - [Originating Facility](StructureDefinition-originating-facility.html)
 - [Next Clinical Visit Date](StructureDefinition-next-clinical-visit-date.html)
+- [Visit Type](StructureDefinition-visit-type.html): new, revisit (continuing ART) or restarted
 
 The full list of profiles, code systems, value sets and examples is on the [Artifacts](artifacts.html) page.
 
@@ -47,7 +50,7 @@ FHIR compares system URLs character for character, so a one-letter difference ma
 | 4 | Pickup point is a `Location` referenced by code | Needs a coded pickup-point registry |
 | 5 | Mandatory field set on MedicationRequest | Reconcile with architecture document §8 |
 | 6 | Viral load and HIV diagnosis date are excluded | Decision D4 |
-| 7 | Allergies not yet modelled (`AllergyIntolerance`) | Decision D4 |
+| 7 | Allergies are sent with each prescription (added in 0.4.0). Pending: whether eRegister can send an explicit "no known allergies" | eRegister team, CDU pharmacy |
 | 8 | CDU identified as `LS-CDU-001` | Confirm the CDU's actual DHIS2 org unit code |
 | 9 | The CDU reports *that* a parcel was collected (Task), not *what* was dispensed (no MedicationDispense) | eRegister team: do they need the dispensed products? |
 
