@@ -27,6 +27,8 @@ Use `http`, not `https`, exactly as written. This is a name, not a link.
 | Bonolo Patient | `{base}/StructureDefinition/bonolo-patient` |
 | Bonolo CDU Medication Request | `{base}/StructureDefinition/bonolo-medication-request` |
 | CDU Fulfilment Task | `{base}/StructureDefinition/cdu-fulfilment-task` |
+| Bonolo Practitioner | `{base}/StructureDefinition/bonolo-practitioner` |
+| Bonolo Allergy Intolerance | `{base}/StructureDefinition/bonolo-allergy-intolerance` |
 
 ### Extensions (all on MedicationRequest)
 | Name | Canonical URL | Value |
@@ -35,6 +37,7 @@ Use `http`, not `https`, exactly as written. This is a name, not a link.
 | Requested pickup date | `{base}/StructureDefinition/requested-pickup-date` | date |
 | Originating facility | `{base}/StructureDefinition/originating-facility` | Reference(Organization) |
 | Next clinical visit date | `{base}/StructureDefinition/next-clinical-visit-date` | date |
+| Visit type | `{base}/StructureDefinition/visit-type` | CodeableConcept (`cdu-visit-type`) |
 
 ### Code systems and value sets
 Each code system has a value set with the same id: `{base}/ValueSet/{id}`.
@@ -46,6 +49,7 @@ Each code system has a value set with the same id: `{base}/ValueSet/{id}`.
 | `cdu-fulfilment-status` | `{base}/CodeSystem/cdu-fulfilment-status` | Task.businessStatus |
 | `cdu-rejection-reason` | `{base}/CodeSystem/cdu-rejection-reason` | Task.statusReason |
 | `pickup-type` | `{base}/CodeSystem/pickup-type` | Location.type on pickup points |
+| `cdu-visit-type` | `{base}/CodeSystem/cdu-visit-type` | Visit type extension on MedicationRequest (`new`, `revisit`, `restarted`) |
 
 Standard HL7 systems used as-is: `http://hl7.org/fhir/CodeSystem/task-code` (Task.code = `fulfill`), `http://snomed.info/sct`, `http://unitsofmeasure.org`.
 
@@ -63,7 +67,8 @@ Standard HL7 systems used as-is: `http://hl7.org/fhir/CodeSystem/task-code` (Tas
 | Prescription | `http://fhir.health.gov.ls/sid/eregister-order-uuid` | MedicationRequest | UUID of the Bonolo encounter | |
 | Fulfilment task | `http://fhir.health.gov.ls/sid/cdu-fulfilment-task` | Task | Same value as the prescription's UUID | |
 | Pickup point | `http://fhir.health.gov.ls/sid/pickup-point-code` | Location | Collect & Go location reference | |
-| Allergy record | **[to decide]** | AllergyIntolerance | Decided with the allergy upsert fix | |
+| Prescriber | `http://fhir.health.gov.ls/sid/eregister-provider-uuid` | Practitioner | OpenMRS provider UUID (the system eRegister already sends) | |
+| Allergy record | `http://fhir.health.gov.ls/sid/eregister-allergy-uuid` | AllergyIntolerance | OpenMRS allergy UUID. For "no known allergies", a UUID eRegister keeps for that statement | |
 
 ---
 

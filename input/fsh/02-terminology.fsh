@@ -126,3 +126,22 @@ Id: pickup-type
 Title: "Pickup Point Types"
 Description: "Allowed values for Location.type on pickup points."
 * include codes from system PickupTypeCS
+
+// ---- Visit type ---------------------------------------------------
+// eRegister's "Type of Visit" on the Bonolo Health form. Carried on the
+// prescription (VisitType extension) so it always arrives with it. The
+// codes match the CDU's "New or Revisit" field.
+CodeSystem: CduVisitTypeCS
+Id: cdu-visit-type
+Title: "CDU Visit Type"
+Description: "The patient's ART status at the visit that produced the prescription."
+* ^caseSensitive = true
+* #new "New" "First ART prescription for this patient."
+* #revisit "Revisit" "A continuing ART patient."
+* #restarted "Restarted" "Restarting ART after an interruption in treatment."
+
+ValueSet: CduVisitTypeVS
+Id: cdu-visit-type
+Title: "CDU Visit Types"
+Description: "Allowed values for the visit type on a prescription."
+* include codes from system CduVisitTypeCS

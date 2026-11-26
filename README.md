@@ -79,7 +79,7 @@ Read them in this order. Each one is commented line by line.
 | `input/fsh/01-aliases.fsh` | Short names for identifier systems and URLs | §8 identifiers, D5 |
 | `input/fsh/02-terminology.fsh` | Code lists: regimens, rejection reasons, external status | §8 regimen, §9 statuses, issue log 11–13 |
 | `input/fsh/03-extensions.fsh` | Fields FHIR lacks: pickup point, requested pickup date, originating facility | §8 pickupPoint, nextPickupDate, facility |
-| `input/fsh/04-profiles.fsh` | **The contract**: Patient, MedicationRequest, Task | §8 canonical contract, INT-01, INT-03 |
+| `input/fsh/04-profiles.fsh` | **The contract**: Patient, Practitioner, MedicationRequest, Task, AllergyIntolerance | §8 canonical contract, INT-01, INT-03 |
 | `input/fsh/05-examples.fsh` | Synthetic examples, plus the full INT-01 transaction bundle | Test fixtures |
 
 ---
@@ -125,8 +125,10 @@ Aim for `Success: 0 errors`. The HAPI server will run this same validation on ev
 ```
 eRegister module ──POST transaction Bundle (INT-01)──▶ OpenHIM ──▶ HAPI repository
    Patient            ifNoneExist on eRegister ID                      │
+   Practitioner       ifNoneExist on provider UUID                     │
    MedicationRequest  ifNoneExist on order UUID                        │ validates against
    Task (requested)   ifNoneExist on task ID                           │ these profiles
+   AllergyIntolerance conditional update on allergy UUID               │
                                                                         ▼
 CDU Odoo ──INT-02: GET Task?status=requested&owner=…──▶ claims (accepted / received)
          ──INT-03: updates status and businessStatus ──▶ … completed / collected
@@ -153,9 +155,9 @@ These are drafted so the build works. None is agreed. Each needs an owner and a 
 | 2 | Regimen list: 24 national codes. Pending: `5h` (listed as two regimens), `TDF/3TC/ATV/r` (no code), `1f` (removed in 0.3.0; still prescribed?), and whether eRegister sends these codes (the list maps `4j` to eRegister's `1j`) | `02-terminology.fsh` | MoH Pharmacy Directorate, eRegister team |
 | 3 | Prescription carries a **regimen code**, not discrete drugs | `04-profiles.fsh` | Depends on the eRegister spike: drug order or observation? |
 | 4 | Pickup point is a `Location` referenced by code | `03-extensions.fsh` | Needs a coded pickup-point registry (currently free text) |
-| 5 | Mandatory set: name, eRegister ID, order ID, authoredOn, regimen, pickup point, requested pickup date, originating facility | `04-profiles.fsh` | Architecture doc §8 says "six" but its table marks seven Yes; reconcile |
+| 5 | Mandatory set: name, eRegister ID, order ID, authoredOn, regimen, pickup point, requested pickup date, next clinical visit date, originating facility, prescriber | `04-profiles.fsh` | Architecture doc §8 says "six" but its table marks seven Yes; reconcile |
 | 6 | Viral load and HIV diagnosis date are **excluded** | Not modelled | Decision D4 |
-| 7 | Allergies not yet modelled (`AllergyIntolerance`) | — | Decision D4 |
+| 7 | Allergies sent with each prescription (`AllergyIntolerance`, added in 0.4.0). Pending: whether eRegister can send an explicit "no known allergies" | `04-profiles.fsh` | eRegister team, CDU pharmacy |
 | 8 | CDU identified as `LS-CDU-001` in the DHIS2 code system | Examples | Confirm the CDU's actual org unit code |
 | 9 | The CDU reports *that* a parcel was collected (Task), not *what* was dispensed: no MedicationDispense profile | Not modelled | eRegister team: do they need the dispensed products? |
 

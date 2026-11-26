@@ -6,8 +6,8 @@ The CDU writes both fields, and eRegister reads them back to update itself. All 
 
 ```
 eRegister ──INT-01: POST transaction Bundle──────▶ OpenHIM ──▶ HAPI repository
-   Patient, MedicationRequest, Task (requested)                 │ validates against
-                                                                 │ these profiles
+   Patient, Practitioner, MedicationRequest,                     │ validates against
+   Task (requested), allergies                                   │ these profiles
 CDU Odoo  ──INT-02: GET Task?owner=…&status=requested ──────────┤ claims: accepted / received
           ──INT-03: updates the Task as the parcel moves ───────┤ … completed / collected
                                                                  │
@@ -40,20 +40,48 @@ eRegister reads the Task at every step, not only at the end, so the facility can
 
 ### INT-01: eRegister publishes a prescription
 
-The eRegister module sends one **transaction Bundle** per prescription, holding a Patient, a MedicationRequest and a Task. Either all three are saved or none are.
+The eRegister module sends one **transaction Bundle** per prescription. Either every entry is saved or none is. It holds:
+
+| Entry | How many | Request |
+|---|---|---|
+| Patient | 1 | `POST`, `ifNoneExist=identifier=http://fhir.health.gov.ls/sid/eregister-id\|{eRegister ID}` |
+| Practitioner (the prescriber) | 1 | `POST`, `ifNoneExist=identifier=http://fhir.health.gov.ls/sid/eregister-provider-uuid\|{provider UUID}` |
+| MedicationRequest | 1 | `POST`, `ifNoneExist=identifier=http://fhir.health.gov.ls/sid/eregister-order-uuid\|{order UUID}` |
+| Task | 1 | `POST`, `ifNoneExist=identifier=http://fhir.health.gov.ls/sid/cdu-fulfilment-task\|{order UUID}` |
+| AllergyIntolerance | 0 or more | `PUT AllergyIntolerance?identifier=http://fhir.health.gov.ls/sid/eregister-allergy-uuid\|{allergy UUID}` |
 
 - Each entry has a `urn:uuid:` **fullUrl**, so entries can reference each other before the server assigns real IDs. The server rewrites those references.
-- Each entry has an **ifNoneExist** condition on its business identifier. A facility that re-sends after an outage therefore cannot create duplicates.
+- **Leave out `id`** on the resources in the bundle. The server assigns IDs. With a conditional update, an `id` in the body would become the record's ID on the server.
+- Every reference carries a `reference` (a `urn:uuid` or, for facilities and pickup points, `Organization/{code}` or `Location/pup-{code}`). A `display` alone is not accepted.
+- **`ifNoneExist`** creates a record only if none with that identifier exists yet. A facility that re-sends after an outage therefore cannot create duplicates, and a patient or prescriber already on the server is reused.
+- **Allergies use a conditional update** (`PUT` with a search URL) instead: it creates the record the first time and replaces it afterwards, so a later change of status, for example *resolved*, reaches the CDU.
+- The MedicationRequest's `requester` points to the Practitioner entry. The CDU prints the prescriber's name on dispensing labels.
 - The Task's identifier value is the **same UUID** as the prescription's order identifier, so there is exactly one Task per order.
 - The Task starts as `status = requested`, with `requester` set to the originating facility and `owner` set to the CDU.
 
 Example: [INT-01 prescription publication](Bundle-ExamplePublicationBundle.html).
 
-| Entry | `request.ifNoneExist` |
+#### Allergies
+
+| eRegister records | Send |
 |---|---|
-| Patient | `identifier=http://fhir.health.gov.ls/sid/eregister-id\|{eRegister ID}` |
-| MedicationRequest | `identifier=http://fhir.health.gov.ls/sid/eregister-order-uuid\|{order UUID}` |
-| Task | `identifier=http://fhir.health.gov.ls/sid/cdu-fulfilment-task\|{order UUID}` |
+| One or more allergies | One AllergyIntolerance per allergy, identified by its eRegister UUID |
+| That the patient has **no known allergies** | One AllergyIntolerance coded SNOMED CT `716186003` *No known allergy* |
+| Nothing about allergies | No AllergyIntolerance. The CDU shows allergies as *not recorded* |
+
+#### Dates
+
+The CDU works out how much medicine to supply from three dates, which must follow this order:
+
+> `authoredOn` (prescription date) < requested pickup date < next clinical visit date
+
+- **Requested pickup date:** the day the patient collects the CDU parcel, once the medicine given at the facility runs out. Leave the CDU time to produce and deliver it.
+- **Next clinical visit date** (mandatory from 0.4.0): the CDU supplies medicine from the pickup date until this date.
+- `dispenseRequest.expectedSupplyDuration` should cover the same period: from the requested pickup date to the next clinical visit.
+
+#### What not to send
+
+Send only the resources in the table above. Encounters, Observations, lab orders and other clinical data, such as viral load results or pregnancy status, are outside this contract and must not be sent to the repository (decision D4, data minimisation).
 
 ### INT-02: the CDU claims the work
 
